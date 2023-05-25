@@ -13,7 +13,7 @@ require 'csv'
 #    database. Seeding is now idempotent: run it as often as you like.
 # 2. A CSV row naming a category or merchant that is not in the lists below used
 #    to pass `nil` into a `null: false` column and surface as a raw PG error.
-#    Unknown reference data is created; a malformed date is reported by line.
+#    Unknown reference data is created; a malformed row is reported by line.
 #
 # This lives in lib/ rather than in db/seeds.rb so that the spec suite can load
 # it once and invoke it repeatedly.
@@ -43,14 +43,23 @@ module Seeds
 
   CSV_PATH = 'transactions.csv'
   DATE_FORMAT = '%m/%d/%Y'
+  # Four-digit years only: `Date.strptime('5/29/23', '%m/%d/%Y')` happily
+  # returns the year 23 AD instead of failing.
+  DATE_PATTERN = %r{\A\d{1,2}/\d{1,2}/\d{4}\z}
+  # Plain decimals that fit `decimal(22, 3)`. Anything else ("$45.12",
+  # "1,200.00", "12.3456") is rejected rather than coerced or silently rounded.
+  AMOUNT_PATTERN = /\A-?\d{1,19}(?:\.\d{1,3})?\z/
+
+  # A CSV row that cannot be imported. The message always names the line.
+  class ImportError < ArgumentError; end
 
   module_function
 
-  def run(logger: Rails.logger)
+  def run(logger: Rails.logger, source: Rails.root.join(CSV_PATH))
     ActiveRecord::Base.transaction do
       create_categories
       create_merchants
-      import_transactions
+      import_transactions(source)
     end
     logger.info("Seeded #{Category.count} categories, #{Merchant.count} merchants, " \
                 "#{Transaction.count} transactions")
@@ -58,49 +67,82 @@ module Seeds
 
   def create_categories
     CATEGORIES.each do |attributes|
-      Category.find_or_initialize_by(name: attributes[:name]).update!(attributes)
+      (Category.named(attributes[:name]).first || Category.new).update!(attributes)
     end
   end
 
   def create_merchants
-    MERCHANTS.each { |name| Merchant.find_or_create_by!(name: name) }
+    MERCHANTS.each { |name| merchant_for(name) }
   end
 
-  def import_transactions
-    rows.each.with_index(2) { |row, line| import_row(row, line) }
+  # Two identical rows on the same day (two coffees at the same shop) are two
+  # transactions, so a row is matched to the n-th existing record with its
+  # name, date and merchant rather than to the first one.
+  def import_transactions(source)
+    occurrences = Hash.new(0)
+    rows(source).each.with_index(2) do |row, line|
+      attributes = attributes_for(row, line)
+      key = attributes.slice(:name, :date, :merchant)
+      import_row(attributes, key, occurrences[key], line)
+      occurrences[key] += 1
+    end
   end
 
-  def import_row(row, line)
-    attributes = {
-      name: row['Transaction Name'],
-      amount: row['Amount'],
+  # Keyed on name + date + merchant so a re-run does not duplicate the ledger,
+  # and so a row a user has already reviewed keeps its review.
+  def import_row(attributes, key, occurrence, line)
+    record = Transaction.where(key).order(:id).offset(occurrence).first || Transaction.new
+    record.update!(attributes)
+  rescue ActiveRecord::RecordInvalid => e
+    raise ImportError, "#{CSV_PATH} line #{line}: #{e.record.errors.full_messages.to_sentence}"
+  end
+
+  def attributes_for(row, line)
+    {
+      name: parse_name(row['Transaction Name'], line),
+      amount: parse_amount(row['Amount'], line),
       date: parse_date(row['Date'], line),
       category: category_for(row['Category']),
       merchant: merchant_for(row['Merchant'])
     }
-
-    # Keyed on name + date + merchant so a re-run does not duplicate the ledger,
-    # and so a row a user has already reviewed keeps its review.
-    Transaction
-      .find_or_initialize_by(attributes.slice(:name, :date, :merchant))
-      .update!(attributes)
   end
 
+  # Case-insensitive, like the unique indexes: "shops" in the CSV is the
+  # existing "Shops" category, not a second one that the index would reject.
   def category_for(name)
-    Category.find_or_create_by!(name: name.to_s.strip.presence || 'Uncategorised')
+    name = name.to_s.strip.presence || 'Uncategorised'
+    Category.named(name).first || Category.create!(name: name)
   end
 
   def merchant_for(name)
-    Merchant.find_or_create_by!(name: name.to_s.strip.presence || 'Unknown')
+    name = name.to_s.strip.presence || 'Unknown'
+    Merchant.named(name).first || Merchant.create!(name: name)
+  end
+
+  def parse_name(value, line)
+    value.to_s.strip.presence || raise(ImportError, "#{CSV_PATH} line #{line}: missing transaction name")
+  end
+
+  def parse_amount(value, line)
+    text = value.to_s.strip
+    return BigDecimal(text) if AMOUNT_PATTERN.match?(text)
+
+    raise ImportError, "#{CSV_PATH} line #{line}: cannot parse amount #{value.inspect}"
   end
 
   def parse_date(value, line)
-    Date.strptime(value.to_s.strip, DATE_FORMAT)
+    text = value.to_s.strip
+    return Date.strptime(text, DATE_FORMAT) if DATE_PATTERN.match?(text)
+
+    raise ImportError, "#{CSV_PATH} line #{line}: cannot parse date #{value.inspect}"
   rescue Date::Error
-    raise ArgumentError, "#{CSV_PATH} line #{line}: cannot parse date #{value.inspect}"
+    raise ImportError, "#{CSV_PATH} line #{line}: cannot parse date #{value.inspect}"
   end
 
-  def rows
-    CSV.parse(Rails.root.join(CSV_PATH).read, headers: true, strip: true)
+  # `bom|utf-8` because a CSV saved from Excel starts with a byte-order mark,
+  # which would otherwise become part of the first header and hide the
+  # "Transaction Name" column. Blank lines (a trailing newline or two) are skipped.
+  def rows(source)
+    CSV.parse(File.read(source, encoding: 'bom|utf-8'), headers: true, strip: true, skip_blanks: true)
   end
 end

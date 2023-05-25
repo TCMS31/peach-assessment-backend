@@ -8,4 +8,6 @@ class Merchant < ApplicationRecord
   validates :name, presence: true, uniqueness: { case_sensitive: false }
 
   scope :ordered, -> { order(:name) }
+  # Matches the unique index on LOWER(name).
+  scope :named, ->(name) { where('LOWER(name) = LOWER(?)', name.to_s) }
 end

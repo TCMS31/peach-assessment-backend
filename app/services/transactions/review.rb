@@ -84,7 +84,7 @@ module Transactions
         return nil
       end
 
-      existing = Category.where('LOWER(name) = ?', name.downcase).first
+      existing = Category.named(name).first
       return existing if existing
 
       Category.create!(name: name, emoji: category_attributes[:emoji])
