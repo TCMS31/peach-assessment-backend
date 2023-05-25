@@ -16,6 +16,19 @@ RSpec.describe Transactions::Review do
       expect(transaction.category).to eq(shops)
     end
 
+    it 'refuses a flag it cannot read instead of treating it as true' do
+      result = described_class.call(transaction, { reviewed: 'maybe' })
+
+      expect(result).not_to be_success
+      expect(result.errors).to eq(['reviewed must be true or false'])
+      expect(transaction.reload.reviewed).to be(false)
+    end
+
+    it 'leaves the flag alone when it is blank' do
+      expect(described_class.call(transaction, { reviewed: '' })).to be_success
+      expect(transaction.reload.reviewed).to be(false)
+    end
+
     it 'accepts the string "false" that arrives from a form-encoded client' do
       transaction.update!(reviewed: true)
 

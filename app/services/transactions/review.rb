@@ -38,6 +38,8 @@ module Transactions
     end
 
     def call
+      return failure(['reviewed must be true or false']) if invalid_reviewed_flag?
+
       category = resolve_category
       return failure(@category_error) if @category_error
 
@@ -55,10 +57,17 @@ module Transactions
       Result.new(transaction: @transaction, errors: Array(messages))
     end
 
+    # An absent or blank flag leaves `reviewed` alone; anything else must be a
+    # recognisable boolean.
     def reviewed_flag
       return @reviewed_flag if defined?(@reviewed_flag)
 
-      @reviewed_flag = ActiveModel::Type::Boolean.new.cast(@attributes[:reviewed])
+      @reviewed_flag = StrictBoolean.cast(@attributes[:reviewed])
+    end
+
+    def invalid_reviewed_flag?
+      raw = @attributes[:reviewed]
+      !raw.nil? && raw != '' && reviewed_flag.nil?
     end
 
     def resolve_category

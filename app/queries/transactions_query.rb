@@ -26,11 +26,8 @@ class TransactionsQuery
   # Associations the TransactionSerializer embeds.
   SERIALIZED_ASSOCIATIONS = %i[category merchant].freeze
 
-  # Deliberately stricter than `ActiveModel::Type::Boolean`, which casts every
-  # unrecognised string - "maybe", "no thanks", a typo - to `true`. A filter the
-  # server cannot understand should be a 400, not a quietly different answer.
-  TRUE_VALUES = %w[true t 1 yes y on].freeze
-  FALSE_VALUES = %w[false f 0 no n off].freeze
+  # OFFSET is a bigint in Postgres; a page past it is a 400, not a 500.
+  MAX_OFFSET = (2**63) - 1
 
   class << self
     def filters
@@ -43,13 +40,10 @@ class TransactionsQuery
     end
 
     def cast_boolean!(name, value)
-      return value if value.is_a?(TrueClass) || value.is_a?(FalseClass)
+      cast = StrictBoolean.cast(value)
+      raise InvalidFilter, "#{name} must be true or false" if cast.nil?
 
-      normalized = value.to_s.strip.downcase
-      return true if TRUE_VALUES.include?(normalized)
-      return false if FALSE_VALUES.include?(normalized)
-
-      raise InvalidFilter, "#{name} must be true or false"
+      cast
     end
 
     def cast_id!(name, value)
@@ -87,7 +81,7 @@ class TransactionsQuery
 
   # The paged, ordered, preloaded relation.
   def results
-    @results ||= ordered_scope.limit(per_page).offset((page - 1) * per_page)
+    @results ||= ordered_scope.limit(per_page).offset(offset)
   end
 
   # Total matching rows, ignoring pagination: one COUNT, no rows transferred.
@@ -110,6 +104,13 @@ class TransactionsQuery
   end
 
   private
+
+  def offset
+    offset = (page - 1) * per_page
+    raise InvalidFilter, 'page is out of range' if offset > MAX_OFFSET
+
+    offset
+  end
 
   def filtered_scope
     @filtered_scope ||= begin

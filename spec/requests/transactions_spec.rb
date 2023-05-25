@@ -85,6 +85,21 @@ RSpec.describe 'Transactions API', type: :request do
       expect(json['message']).to eq(['reviewed must be true or false'])
     end
 
+    it 'rejects a page number past what OFFSET can hold with 400, not a database error' do
+      get '/transactions', params: { page: '99999999999999999999' }
+
+      expect(response).to have_http_status(:bad_request)
+      expect(json['message']).to eq(['page is out of range'])
+    end
+
+    it 'returns an empty array for a page past the last one' do
+      get '/transactions', params: { page: 50 }
+
+      expect(response).to have_http_status(:ok)
+      expect(json).to eq([])
+      expect(response.headers['X-Total-Count']).to eq('2')
+    end
+
     it 'reports pagination in headers, leaving the body a plain array' do
       get '/transactions', params: { per_page: 1 }
 
@@ -166,6 +181,14 @@ RSpec.describe 'Transactions API', type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(json['message']).to eq(['Category 999999 does not exist'])
+    end
+
+    it 'returns 422 for a reviewed flag it cannot read, leaving the row unchanged' do
+      patch "/transactions/#{pending_flight.id}", params: { transaction: { reviewed: 'maybe' } }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(json['message']).to eq(['reviewed must be true or false'])
+      expect(pending_flight.reload.reviewed).to be(false)
     end
 
     it 'returns 400 when the transaction key is missing, rather than a 500' do
