@@ -23,7 +23,7 @@ actually holds after `rails db:seed`. The same table is asserted in
 Positive is money out, negative is money in.
 
 **The fixture files all ten rows under "Shops"** - a payroll deposit and a tax
-payment included. That is how the take-home ships it, and it is the point of the
+payment included. That is how the fixture ships, and it is the point of the
 product: the ledger arrives miscategorised and a person corrects it. The
 importer reproduces the CSV faithfully rather than guessing better categories,
 and `spec/seeds_spec.rb` asserts that it does.

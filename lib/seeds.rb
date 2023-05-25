@@ -2,7 +2,7 @@
 
 require 'csv'
 
-# Imports the take-home's fixture ledger (transactions.csv) into the database.
+# Imports the fixture ledger (transactions.csv) into the database.
 #
 # Two things changed from the generated version.
 #

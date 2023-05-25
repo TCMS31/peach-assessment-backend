@@ -5,7 +5,7 @@ require Rails.root.join('lib/seeds')
 
 # The figures this API serves are only as good as the import that produced them.
 # EXPECTED below was computed independently from transactions.csv (see
-# docs/seeded-figures.txt) and is written out row by row on purpose: an import
+# docs/seeded-figures.md) and is written out row by row on purpose: an import
 # bug that shifts a column or loses a decimal place has to change these literals
 # to pass, which is exactly what a regression test is for.
 module SeedFixtures
@@ -81,10 +81,10 @@ RSpec.describe Seeds, type: :model do
     expect(Transaction.pending_review.count).to eq(10)
   end
 
-  # Documented, not fixed: the fixture CSV supplied with the take-home files
-  # all ten rows - including a payroll deposit and a tax payment - under
-  # "Shops". That is the ledger a user is meant to correct in the app, so the
-  # importer reproduces it faithfully rather than guessing better categories.
+  # Documented, not fixed: the fixture CSV files all ten rows - including a
+  # payroll deposit and a tax payment - under "Shops". That is the ledger a
+  # user is meant to correct in the app, so the importer reproduces it
+  # faithfully rather than guessing better categories.
   it 'reproduces the fixture CSV as given, miscategorisations included' do
     expect(Transaction.joins(:category).where(categories: { name: 'Shops' }).count).to eq(10)
     expect(Transaction.joins(:category).where(categories: { name: 'Income' })).to be_empty
