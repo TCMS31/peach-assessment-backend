@@ -21,7 +21,7 @@ module ExceptionHandler
 
     # A `create!`/`update!` that failed validation. Previously a 500.
     rescue_from ActiveRecord::RecordInvalid do |error|
-      render_error(error.record.errors.full_messages, :unprocessable_entity)
+      render_error(error.record.errors.full_messages, :unprocessable_content)
     end
 
     # Raised by the query layer for a filter value it cannot honour.

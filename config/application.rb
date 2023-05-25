@@ -19,14 +19,10 @@ Bundler.require(*Rails.groups)
 module Peachtakehomebackend
   # Rails application configuration for the Peach transactions API.
   class Application < Rails::Application
-    config.load_defaults 6.1
+    config.load_defaults 8.1
 
     # No cookies, no sessions, no flash and no view layer on the request path.
     config.api_only = true
-
-    # Autoload the query and service layers alongside the default app/* dirs.
-    config.paths.add 'app/queries', eager_load: true
-    config.paths.add 'app/services', eager_load: true
 
     config.generators do |g|
       g.test_framework :rspec, fixture: false

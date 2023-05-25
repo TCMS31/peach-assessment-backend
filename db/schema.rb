@@ -10,25 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_09_25_120000) do
-
+ActiveRecord::Schema[8.1].define(version: 2026_09_25_120000) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "categories", force: :cascade do |t|
     t.string "name"
     t.string "emoji"
     t.string "color"
     t.decimal "budget"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index "lower((name)::text)", name: "index_categories_on_lower_name", unique: true
   end
 
   create_table "merchants", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index "lower((name)::text)", name: "index_merchants_on_lower_name", unique: true
   end
 
@@ -39,8 +38,8 @@ ActiveRecord::Schema.define(version: 2026_09_25_120000) do
     t.date "date", null: false
     t.bigint "category_id", null: false
     t.bigint "merchant_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date", order: :desc
     t.index ["merchant_id"], name: "index_transactions_on_merchant_id"

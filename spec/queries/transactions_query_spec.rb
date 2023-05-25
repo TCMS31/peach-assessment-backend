@@ -131,12 +131,12 @@ RSpec.describe TransactionsQuery do
     end
   end
 
-  def count_queries(&block)
+  def count_queries(&)
     count = 0
     counter = lambda { |_name, _start, _finish, _id, payload|
       count += 1 unless payload[:name].in?(%w[SCHEMA TRANSACTION CACHE])
     }
-    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &block)
+    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &)
     count
   end
 end

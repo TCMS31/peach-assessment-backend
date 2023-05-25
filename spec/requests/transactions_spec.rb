@@ -179,20 +179,29 @@ RSpec.describe 'Transactions API', type: :request do
     it 'returns 422 with a message array for an unknown category' do
       patch "/transactions/#{pending_flight.id}", params: { transaction: { category_id: 999_999 } }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(json['message']).to eq(['Category 999999 does not exist'])
     end
 
     it 'returns 422 for a reviewed flag it cannot read, leaving the row unchanged' do
       patch "/transactions/#{pending_flight.id}", params: { transaction: { reviewed: 'maybe' } }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(json['message']).to eq(['reviewed must be true or false'])
       expect(pending_flight.reload.reviewed).to be(false)
     end
 
     it 'returns 400 when the transaction key is missing, rather than a 500' do
       patch "/transactions/#{pending_flight.id}", params: { reviewed: true }
+
+      expect(response).to have_http_status(:bad_request)
+      expect(json['message']).to eq(['Missing required parameter: transaction'])
+    end
+
+    it 'returns 400 when transaction is not an object, rather than a 500' do
+      patch "/transactions/#{pending_flight.id}",
+            params: { transaction: 'reviewed' }.to_json,
+            headers: { 'CONTENT_TYPE' => 'application/json' }
 
       expect(response).to have_http_status(:bad_request)
       expect(json['message']).to eq(['Missing required parameter: transaction'])
@@ -227,12 +236,12 @@ RSpec.describe 'Transactions API', type: :request do
     end
   end
 
-  def count_queries(&block)
+  def count_queries(&)
     count = 0
     counter = lambda { |_name, _start, _finish, _id, payload|
       count += 1 unless payload[:name].in?(%w[SCHEMA TRANSACTION CACHE])
     }
-    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &block)
+    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &)
     count
   end
 end

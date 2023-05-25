@@ -29,7 +29,7 @@ class TransactionsController < ApplicationController
     if result.success?
       render json: result.transaction, status: :ok
     else
-      render json: { message: result.errors }, status: :unprocessable_entity
+      render json: { message: result.errors }, status: :unprocessable_content
     end
   end
 
@@ -40,13 +40,13 @@ class TransactionsController < ApplicationController
   end
 
   def review_params
-    params
-      .require(:transaction)
-      .permit(:reviewed, :category_id, category_attributes: %i[name emoji])
+    # `expect` rather than `require.permit`: a `transaction` that is a string or
+    # an array is a 400, where `permit` would have raised a NoMethodError (500).
+    params.expect(transaction: [:reviewed, :category_id, { category_attributes: %i[name emoji] }])
   end
 
   def set_transaction
-    @transaction = Transaction.includes(:category, :merchant).find(params[:id])
+    @transaction = Transaction.includes(:category, :merchant).find(params.expect(:id))
   end
 
   def apply_pagination_headers(query)

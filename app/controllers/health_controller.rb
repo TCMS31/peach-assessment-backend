@@ -7,7 +7,7 @@
 # is the reason "green dashboard, 500s everywhere" happens.
 class HealthController < ApplicationController
   def show
-    ActiveRecord::Base.connection.execute('SELECT 1')
+    ActiveRecord::Base.with_connection { |connection| connection.execute('SELECT 1') }
     render json: { status: 'ok', database: 'ok' }, status: :ok
   rescue StandardError => e
     Rails.logger.error("health check failed: #{e.class}: #{e.message}")

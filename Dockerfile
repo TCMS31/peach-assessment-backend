@@ -3,7 +3,7 @@
 # ---------- build ----------------------------------------------------------
 # Gems are compiled in a stage that carries a toolchain; the runtime image gets
 # the installed gems but none of the compilers.
-FROM ruby:3.1.3-slim AS build
+FROM ruby:3.4.12-slim AS build
 
 ENV BUNDLE_PATH=/usr/local/bundle \
     BUNDLE_WITHOUT=development:test \
@@ -15,7 +15,7 @@ RUN apt-get update -qq \
 
 WORKDIR /app
 
-COPY Gemfile Gemfile.lock ./
+COPY Gemfile Gemfile.lock .ruby-version ./
 RUN bundle install --jobs 4 --retry 3 \
  && rm -rf "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 
@@ -25,7 +25,7 @@ COPY . .
 RUN SECRET_KEY_BASE=dummy RAILS_ENV=production bundle exec rails zeitwerk:check
 
 # ---------- runtime --------------------------------------------------------
-FROM ruby:3.1.3-slim AS runtime
+FROM ruby:3.4.12-slim AS runtime
 
 ENV BUNDLE_PATH=/usr/local/bundle \
     BUNDLE_WITHOUT=development:test \

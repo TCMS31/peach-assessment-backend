@@ -52,7 +52,7 @@ RSpec.describe TransactionsController, type: :controller do
     it 'renders the service errors as a 422' do
       patch :update, params: { id: transaction.id, transaction: { category_id: 0 } }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(response.parsed_body['message']).to eq(['Category 0 does not exist'])
     end
   end

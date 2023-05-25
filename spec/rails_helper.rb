@@ -19,7 +19,7 @@ rescue ActiveRecord::PendingMigrationError => e
 end
 
 RSpec.configure do |config|
-  config.fixture_path = Rails.root.join('spec/fixtures').to_s
+  config.fixture_paths = [Rails.root.join('spec/fixtures').to_s]
   config.use_transactional_fixtures = true
 
   # `rails db:prepare` seeds a database it has just created, so the test

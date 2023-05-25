@@ -58,7 +58,7 @@ RSpec.describe 'Reference data API', type: :request do
     end
 
     it 'reports 503 when the database is not reachable' do
-      allow(ActiveRecord::Base).to receive(:connection).and_raise(PG::ConnectionBad, 'down')
+      allow(ActiveRecord::Base).to receive(:with_connection).and_raise(PG::ConnectionBad, 'down')
 
       get '/health'
 
