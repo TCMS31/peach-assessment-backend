@@ -28,12 +28,18 @@ bundle install
 bin/rails db:prepare
 ```
 
-### Run Migrations:
+### Run Migrations & Seed DB:
 ```
-# TODO: ADD ME!
+rails db:migrate RAILS_ENV=development
+
 ```
 
 ### Running:
 ```
 rails s -b 0.0.0.0
+```
+
+### Resetting DB:
+```
+rails db:reset && rails db:migrate
 ```
