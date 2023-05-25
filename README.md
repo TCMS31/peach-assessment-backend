@@ -31,7 +31,7 @@ bin/rails db:prepare
 ### Run Migrations & Seed DB:
 ```
 rails db:migrate RAILS_ENV=development
-
+bundle exec rake db:seed
 ```
 
 ### Running:
