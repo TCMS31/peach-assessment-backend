@@ -23,6 +23,10 @@ sudo gem install bundler:2.2.26
 gem install bundler:2.2.26
 bundle install
 bin/rails db:prepare
+```
+
+### Set your Rails Env
+```
 RAILS_ENV=development
 ```
 
