@@ -1,0 +1,61 @@
+plugins:
+  - rubocop-rails
+  - rubocop-performance
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.1
+  NewCops: enable
+  Exclude:
+    - 'bin/**/*'
+    - 'db/schema.rb'
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'log/**/*'
+    # Migrations inherited from before this pass; rewriting applied migrations
+    # to satisfy a style cop is not worth the churn.
+    - 'db/migrate/2023*.rb'
+
+# Comments in this codebase explain *why*, and some of those reasons need a
+# paragraph. Code lines stay at 120.
+Layout/LineLength:
+  Max: 120
+
+Style/Documentation:
+  Enabled: true
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'config/routes.rb'
+
+Metrics/MethodLength:
+  Max: 15
+
+# Specs read better with several related expectations in one example than with
+# a dozen one-line examples that repeat the same setup.
+RSpec/MultipleExpectations:
+  Max: 6
+
+RSpec/ExampleLength:
+  Max: 15
+
+RSpec/NestedGroups:
+  Max: 4
+
+# A ledger fixture needs categories, merchants and several transactions before
+# any filtering assertion means anything.
+RSpec/MultipleMemoizedHelpers:
+  Max: 8
+
+RSpec/LetSetup:
+  Enabled: false
+
+# `is_expected.to` reads worse than `expect(response)` for request specs.
+RSpec/NamedSubject:
+  Enabled: false
+
+Rails/Output:
+  Exclude:
+    - 'db/seeds.rb'
+    - 'lib/seeds.rb'

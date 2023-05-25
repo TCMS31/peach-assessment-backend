@@ -1,0 +1,26 @@
+.git
+.github
+.rubocop.yml
+.rspec
+
+# Local gem install; the image installs its own into /usr/local/bundle.
+vendor/bundle
+.bundle
+
+log/*
+tmp/*
+!tmp/pids/.keep
+!log/.keep
+
+spec
+scripts
+docs
+test
+
+.env
+.env.*
+!.env.example
+
+config/master.key
+*.log
+.DS_Store
