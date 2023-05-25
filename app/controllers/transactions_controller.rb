@@ -13,8 +13,9 @@ class TransactionsController < ApplicationController
   # would blank the screen. Pagination is reported in headers instead.
   def index
     query = TransactionsQuery.new(query_params)
+    transactions = query.results # raises InvalidFilter before any header is set
     apply_pagination_headers(query)
-    render json: query.results, each_serializer: TransactionSerializer
+    render json: transactions, each_serializer: TransactionSerializer
   end
 
   # GET /transactions/:id

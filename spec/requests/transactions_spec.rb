@@ -90,6 +90,7 @@ RSpec.describe 'Transactions API', type: :request do
 
       expect(response).to have_http_status(:bad_request)
       expect(json['message']).to eq(['page is out of range'])
+      expect(response.headers['X-Total-Count']).to be_nil
     end
 
     it 'returns an empty array for a page past the last one' do

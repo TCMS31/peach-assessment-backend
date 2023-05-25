@@ -7,7 +7,9 @@ class Merchant < ApplicationRecord
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
 
-  scope :ordered, -> { order(:name) }
+  # LOWER(name) so the order does not depend on the database collation
+  # ("AMC" sorts before "Amazon" under C/musl, after it under en_US).
+  scope :ordered, -> { order(arel_table[:name].lower, :id) }
   # Matches the unique index on LOWER(name).
   scope :named, ->(name) { where('LOWER(name) = LOWER(?)', name.to_s) }
 end

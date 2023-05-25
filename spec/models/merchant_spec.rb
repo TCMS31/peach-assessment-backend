@@ -32,5 +32,13 @@ RSpec.describe Merchant, type: :model do
 
       expect(described_class.ordered.pluck(:name)).to eq(%w[Amazon United])
     end
+
+    it 'ignores case, whatever the database collation' do
+      create(:merchant, name: 'AMC')
+      create(:merchant, name: 'Amazon')
+      create(:merchant, name: 'blue cross')
+
+      expect(described_class.ordered.pluck(:name)).to eq(['Amazon', 'AMC', 'blue cross'])
+    end
   end
 end
