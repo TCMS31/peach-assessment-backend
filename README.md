@@ -11,14 +11,11 @@ brew services start postgresql@13
 postgres -V
 createdb
 createuser -s -r peachtakehomebackend
-### CONTINUE HERE !!!!
 ```
 
 
 ### Environment Setup:
-Rails master key needed to encrypt credentials. You can get it from @mskalra
 ```bash
-echo "RAILS_MASTER_KEY={key}" >> .env
 brew install rbenv
 rbenv install
 rvm install "ruby-3.1.0"
@@ -26,6 +23,7 @@ sudo gem install bundler:2.2.26
 gem install bundler:2.2.26
 bundle install
 bin/rails db:prepare
+RAILS_ENV=development
 ```
 
 ### Run Migrations & Seed DB:
@@ -34,9 +32,14 @@ rails db:migrate RAILS_ENV=development
 bundle exec rake db:seed
 ```
 
-### Running:
+### Run Server:
 ```
 rails s -b 0.0.0.0
+```
+
+### Run Rails Console:
+```
+rails c
 ```
 
 ### Resetting DB:
