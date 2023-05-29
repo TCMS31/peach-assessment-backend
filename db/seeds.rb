@@ -14,9 +14,9 @@ class Seeds
 
     # SPENDING
     ["Food and Drink", "🍕", COLOR_SCALE_RED],
+    ["Healthcare", "🏥", COLOR_SCALE_BROWN],
     ["Shops", "🛍", COLOR_SCALE_BLUE],
     ["Subscription Service", "📺", COLOR_SCALE_PINK],
-    ["Healthcare", "🏥", COLOR_SCALE_BROWN],
     ["Travel", "✈️", COLOR_SCALE_YELLOW],
   ]
 
