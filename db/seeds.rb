@@ -7,6 +7,7 @@ class Seeds
   COLOR_SCALE_PINK = '#FFDAF9'
   COLOR_SCALE_BROWN = '#E5CBAF'
   COLOR_SCALE_YELLOW = '#FFECC6'
+  COLOR_SCALE_PURPLE = '#C5C8FF'
 
   CATEGORIES_MAP = [
     # INCOME
@@ -18,7 +19,7 @@ class Seeds
     ["Shops", "🛍", COLOR_SCALE_BLUE],
     ["Subscription Service", "📺", COLOR_SCALE_PINK],
     ["Travel", "✈️", COLOR_SCALE_YELLOW],
-    ["Taxes", "💸", COLOR_SCALE_RED],
+    ["Taxes", "💸", COLOR_SCALE_PURPLE],
   ]
 
   MERCHANTS  = %w[Uber, United, Chipotle, Payroll, Amazon, Turbo Tax, Blue Cross, AMC, Netflix, Hulu]
