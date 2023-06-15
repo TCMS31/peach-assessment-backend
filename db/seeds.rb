@@ -18,6 +18,7 @@ class Seeds
     ["Shops", "🛍", COLOR_SCALE_BLUE],
     ["Subscription Service", "📺", COLOR_SCALE_PINK],
     ["Travel", "✈️", COLOR_SCALE_YELLOW],
+    ["Taxes", "💸", COLOR_SCALE_RED],
   ]
 
   MERCHANTS  = %w[Uber, United, Chipotle, Payroll, Amazon, Turbo Tax, Blue Cross, AMC, Netflix, Hulu]
