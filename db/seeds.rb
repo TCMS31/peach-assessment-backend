@@ -20,7 +20,7 @@ class Seeds
     ["Travel", "✈️", COLOR_SCALE_YELLOW],
   ]
 
-  MERCHANTS  = %w[Uber, United, Chiptole, Payroll, Amazon, Turbo Tax, Blue Cross, AMC, Netflix, Hulu]
+  MERCHANTS  = %w[Uber, United, Chipotle, Payroll, Amazon, Turbo Tax, Blue Cross, AMC, Netflix, Hulu]
 
   def update
       clean_db
