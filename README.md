@@ -19,8 +19,8 @@ createuser -s -r peachtakehomebackend
 brew install rbenv
 rbenv install
 rvm install "ruby-3.1.0"
-sudo gem install bundler:2.2.26
-gem install bundler:2.2.26
+sudo gem install bundler:2.3.25
+gem install bundler:2.3.25
 bundle install
 bin/rails db:prepare
 ```
