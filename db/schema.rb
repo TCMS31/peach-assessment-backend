@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_25_194728) do
+ActiveRecord::Schema.define(version: 2023_06_23_012647) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,4 +30,19 @@ ActiveRecord::Schema.define(version: 2023_05_25_194728) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "transactions", force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "reviewed", default: false, null: false
+    t.decimal "amount", precision: 22, scale: 3, default: "0.0", null: false
+    t.date "date", null: false
+    t.bigint "category_id", null: false
+    t.bigint "merchant_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["category_id"], name: "index_transactions_on_category_id"
+    t.index ["merchant_id"], name: "index_transactions_on_merchant_id"
+  end
+
+  add_foreign_key "transactions", "categories"
+  add_foreign_key "transactions", "merchants"
 end

@@ -14,10 +14,10 @@ createuser -s -r peachtakehomebackend
 ```
 
 
-### Environment Setup:
+### Environment Setup: hghjgjhgj
 ```bash
 brew install rbenv
-rbenv install
+rbenv install kjhdfkj
 rvm install "ruby-3.1.0"
 sudo gem install bundler:2.3.25
 gem install bundler:2.3.25
